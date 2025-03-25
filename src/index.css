@@ -136,3 +136,137 @@
 }
 
 /* Footer responsive styles - REMOVED TO AVOID CONFLICTS */
+
+/* Responsive name positioning for card */
+.name-container {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  padding: 0 1rem;
+}
+
+.name-position-bottom {
+  bottom: 125px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.name-position-top {
+  top: 35px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.name-position-center {
+  top: calc(50% - 30px);
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.name-position-left {
+  top: calc(50% - 30px);
+  left: 20px;
+  transform: translateY(-50%);
+}
+
+.name-position-right {
+  top: calc(50% - 30px);
+  right: 20px;
+  transform: translateY(-50%);
+}
+
+/* Override for mobile devices */
+@media screen and (max-width: 768px) {
+  .name-position-bottom {
+    bottom: 100px;
+  }
+  
+  .name-position-top {
+    top: 50px;
+  }
+  
+  .name-position-center,
+  .name-position-left,
+  .name-position-right {
+    top: calc(50% - 20px);
+  }
+}
+
+/* iPhone specific overrides */
+@media screen and (max-width: 480px) {
+  .name-position-bottom {
+    bottom: 130px !important;
+  }
+  
+  .name-position-top {
+    top: 20px !important;
+  }
+  
+  .name-position-center,
+  .name-position-left,
+  .name-position-right {
+    top: calc(50% - 15px) !important;
+  }
+}
+
+/* iPhone 11 and similar sized devices */
+@media screen and (min-width: 375px) and (max-width: 414px) and (min-height: 800px) {
+  .name-position-bottom {
+    bottom: 135px !important;
+  }
+}
+
+/* Extra tall mobile devices like iPhone 11 Pro Max */
+@media screen and (min-width: 400px) and (max-width: 415px) and (min-height: 900px) {
+  .name-position-bottom {
+    bottom: 110px !important; /* Lower value to move name down on tall phones */
+  }
+}
+
+/* iPhone 13/14 sized devices (390x844) */
+@media screen and (min-width: 385px) and (max-width: 395px) and (min-height: 840px) and (max-height: 850px) {
+  .name-position-bottom {
+    bottom: 102px !important; /* Lower value to move name down further */
+  }
+}
+
+/* Add specific overrides for other common phone sizes */
+@media screen and (max-width: 375px) {
+  .name-position-bottom {
+    bottom: 125px !important;
+  }
+}
+
+@media screen and (min-width: 415px) and (max-width: 480px) {
+  .name-position-bottom {
+    bottom: 130px !important;
+  }
+}
+
+/* iPhone XR/11 sized devices (414x896) */
+@media screen and (min-width: 412px) and (max-width: 416px) and (min-height: 890px) and (max-height: 900px) {
+  .name-position-bottom {
+    bottom: 105px !important; /* Adjusted value to move name slightly higher on iPhone XR/11 */
+  }
+}
+
+/* iPhone 12 Pro Max/13 Pro Max sized devices (430x932) */
+@media screen and (min-width: 428px) and (max-width: 432px) and (min-height: 928px) and (max-height: 936px) {
+  .name-position-bottom {
+    bottom: 110px !important; /* Adjusted value to move name slightly higher */
+  }
+}
+
+/* Samsung Galaxy S8/S9/S10e sized devices (360x740) */
+@media screen and (min-width: 358px) and (max-width: 362px) and (min-height: 735px) and (max-height: 745px) {
+  .name-position-bottom {
+    bottom: 90px !important; /* Lower value to move name down */
+  }
+}
+
+/* iPad sized devices (1024x1366) */
+@media screen and (min-width: 1020px) and (max-width: 1028px) and (min-height: 1360px) and (max-height: 1372px) {
+  .name-position-bottom {
+    bottom: 300px !important; /* Higher value to move name up on iPad */
+  }
+}

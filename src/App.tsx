@@ -87,7 +87,9 @@ function App() {
   
   // Fixed position 
   const fixedOffsetY = -80; // Adjusted to -80px as requested
+  const isiOSDevice = /iPhone|iPod/.test(navigator.userAgent);
   const cardRef = useRef<HTMLDivElement>(null);
+  const nameContainerRef = useRef<HTMLDivElement>(null);
 
   // Hide fireworks after 10 seconds
   useEffect(() => {
@@ -97,6 +99,39 @@ function App() {
     
     return () => clearTimeout(timer);
   }, []);
+
+  // Handle mobile positioning
+  useEffect(() => {
+    const adjustMobilePosition = () => {
+      if (!nameContainerRef.current) return;
+      
+      const isMobile = window.innerWidth <= 480;
+      const isTallMobile = window.innerWidth >= 400 && window.innerWidth <= 415 && window.innerHeight >= 900;
+      const isIPhone13Size = window.innerWidth >= 385 && window.innerWidth <= 395 && window.innerHeight >= 840 && window.innerHeight <= 850;
+      
+      if (isMobile && namePosition.id === 'bottom') {
+        // Force position for mobile
+        if (isIPhone13Size) {
+          nameContainerRef.current.style.bottom = '102px'; // Lower for iPhone 13/14 sized devices
+        } else if (isTallMobile) {
+          nameContainerRef.current.style.bottom = '110px'; // Lower for tall phones
+        } else {
+          nameContainerRef.current.style.bottom = '130px';
+        }
+      } else {
+        // Reset to use CSS class
+        nameContainerRef.current.style.bottom = '';
+      }
+    };
+    
+    // Adjust on load and resize
+    adjustMobilePosition();
+    window.addEventListener('resize', adjustMobilePosition);
+    
+    return () => {
+      window.removeEventListener('resize', adjustMobilePosition);
+    };
+  }, [namePosition.id]);
 
   // Handle name submission and card generation
   const handleNameSubmit = (e: React.FormEvent) => {
@@ -127,30 +162,56 @@ function App() {
       // Get the name container in the clone
       const nameContainer = clone.querySelector('[data-name-container="true"]') as HTMLElement;
       if (nameContainer) {
-        // Hard-code the explicit position for consistent results
+        // Force consistent positioning for capturing
         nameContainer.style.position = 'absolute';
         nameContainer.style.width = '100%';
         nameContainer.style.textAlign = 'center';
         nameContainer.style.padding = '0 1rem';
         
+        // Explicitly set positioning based on position type and device
         if (namePosition.id === 'bottom') {
-          nameContainer.style.bottom = '125px'; // Adjusted to match fixedOffsetY of -80
+          const isMobile = window.innerWidth <= 480;
+          const isTallMobile = window.innerWidth >= 400 && window.innerWidth <= 415 && window.innerHeight >= 900;
+          const isIPhone13Size = window.innerWidth >= 385 && window.innerWidth <= 395 && window.innerHeight >= 840 && window.innerHeight <= 850;
+          const isIPadSize = window.innerWidth >= 1020 && window.innerWidth <= 1028 && window.innerHeight >= 1360 && window.innerHeight <= 1372;
+          const isIPhoneXRSize = window.innerWidth >= 412 && window.innerWidth <= 416 && window.innerHeight >= 890 && window.innerHeight <= 900;
+          const isIPhone12ProMaxSize = window.innerWidth >= 428 && window.innerWidth <= 432 && window.innerHeight >= 928 && window.innerHeight <= 936;
+          const isGalaxyS8Size = window.innerWidth >= 358 && window.innerWidth <= 362 && window.innerHeight >= 735 && window.innerHeight <= 745;
+          
+          if (isIPadSize) {
+            nameContainer.style.bottom = '300px'; // Higher for iPad sized devices
+          } else if (isIPhone12ProMaxSize) {
+            nameContainer.style.bottom = '110px'; // Adjusted value to move name slightly higher on iPhone 12/13 Pro Max
+          } else if (isIPhoneXRSize) {
+            nameContainer.style.bottom = '105px'; // Adjusted value to move name slightly higher on iPhone XR/11
+          } else if (isIPhone13Size) {
+            nameContainer.style.bottom = '102px'; // Lower for iPhone 13/14 sized devices
+          } else if (isGalaxyS8Size) {
+            nameContainer.style.bottom = '90px'; // Lower for Galaxy S8/S9/S10e sized devices
+          } else if (isTallMobile) {
+            nameContainer.style.bottom = '110px'; // Lower for tall phones
+          } else if (isMobile) {
+            nameContainer.style.bottom = '130px';
+          } else {
+            nameContainer.style.bottom = '125px';
+          }
+          
           nameContainer.style.left = '50%';
           nameContainer.style.transform = 'translateX(-50%)';
         } else if (namePosition.id === 'top') {
-          nameContainer.style.top = '35px'; 
+          nameContainer.style.top = '50px';
           nameContainer.style.left = '50%';
           nameContainer.style.transform = 'translateX(-50%)';
         } else if (namePosition.id === 'center') {
-          nameContainer.style.top = 'calc(50% - 30px)'; // Adjusted to match fixedOffsetY of -80
+          nameContainer.style.top = 'calc(50% - 30px)';
           nameContainer.style.left = '50%';
           nameContainer.style.transform = 'translate(-50%, -50%)';
         } else if (namePosition.id === 'left') {
-          nameContainer.style.top = 'calc(50% - 30px)'; // Adjusted to match fixedOffsetY of -80
+          nameContainer.style.top = 'calc(50% - 30px)';
           nameContainer.style.left = '20px';
           nameContainer.style.transform = 'translateY(-50%)';
         } else if (namePosition.id === 'right') {
-          nameContainer.style.top = 'calc(50% - 30px)'; // Adjusted to match fixedOffsetY of -80
+          nameContainer.style.top = 'calc(50% - 30px)';
           nameContainer.style.right = '20px';
           nameContainer.style.transform = 'translateY(-50%)';
         }
@@ -165,18 +226,7 @@ function App() {
         logging: false,
         useCORS: true,
         backgroundColor: null, // Transparent background
-        allowTaint: true,
-        // Preserve original element positions
-        onclone: (document, element) => {
-          const nameElem = element.querySelector('[data-name-container="true"]') as HTMLElement;
-          if (nameElem) {
-            // Apply any final adjustments if needed
-            if (namePosition.id === 'bottom') {
-              // Fine-tune bottom position
-              nameElem.style.bottom = '125px'; // Adjusted to match fixedOffsetY of -80
-            }
-          }
-        }
+        allowTaint: true
       });
       
       // Remove the clone after capturing
@@ -310,7 +360,7 @@ function App() {
               </p>
               <p className="text-lg font-medium text-gray-500 max-w-2xl mx-auto mb-2">
                 عشان تستلم عيديتك، أدخل اسمك تحت 👇 ولا تنسى تشاركها معنا في تويتر
-                <a href="https://x.com/GDOC_Team" target="_blank" rel="noopener noreferrer" className="text-google-blue"> @GDOC_Team</a>
+                <a href="https://x.com/GDOC_Team" target="_blank" rel="noopener noreferrer" className="text-google-blue"> @GDSC_Team</a>
               </p>
             </div>
 
@@ -355,16 +405,8 @@ function App() {
                       className="w-full h-full object-cover"
                     />
                     <div 
-                      className={`absolute ${namePosition.className} text-center w-full px-4`} 
-                      style={{ 
-                        transform: namePosition.className.includes('transform') ? 
-                          (namePosition.id === 'center' ? 
-                            `translate(-50%, calc(-50% + ${fixedOffsetY}px))` : 
-                            namePosition.id === 'bottom' || namePosition.id === 'top' ? 
-                              `translateX(-50%) translateY(${fixedOffsetY}px)` : 
-                              `translateY(calc(-50% + ${fixedOffsetY}px))`) : 
-                          `translate(0, ${fixedOffsetY}px)`
-                      }}
+                      ref={nameContainerRef}
+                      className={`name-container name-position-${namePosition.id}`}
                       data-name-container="true">
                       <h3 className={`font-bold ${nameColor.className} ${nameFont.className} ${fontSizeOptions[fontSizeIndex].value}`} data-name-element="true">
                         {name}
