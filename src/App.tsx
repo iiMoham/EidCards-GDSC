@@ -108,11 +108,14 @@ function App() {
       const isMobile = window.innerWidth <= 480;
       const isTallMobile = window.innerWidth >= 400 && window.innerWidth <= 415 && window.innerHeight >= 900;
       const isIPhone13Size = window.innerWidth >= 385 && window.innerWidth <= 395 && window.innerHeight >= 840 && window.innerHeight <= 850;
+      const isIPhone11Size = window.innerWidth >= 375 && window.innerWidth <= 414 && window.innerHeight >= 800 && window.innerHeight < 890;
       
       if (isMobile && namePosition.id === 'bottom') {
         // Force position for mobile
         if (isIPhone13Size) {
           nameContainerRef.current.style.bottom = '102px'; // Lower for iPhone 13/14 sized devices
+        } else if (isIPhone11Size) {
+          nameContainerRef.current.style.bottom = '110px'; // Lowered value for iPhone 11 to move name down
         } else if (isTallMobile) {
           nameContainerRef.current.style.bottom = '110px'; // Lower for tall phones
         } else {
@@ -151,17 +154,17 @@ function App() {
     if (!cardRef.current) return;
     
     try {
-      // Create a temporary clone of the card for capturing
-      const clone = cardRef.current.cloneNode(true) as HTMLElement;
-      clone.style.position = 'absolute';
-      clone.style.left = '-9999px';
-      clone.style.width = `${cardRef.current.offsetWidth}px`;
-      clone.style.height = `${cardRef.current.offsetHeight}px`;
-      document.body.appendChild(clone);
-      
-      // Get the name container in the clone
-      const nameContainer = clone.querySelector('[data-name-container="true"]') as HTMLElement;
-      if (nameContainer) {
+        // Create a temporary clone of the card for capturing
+        const clone = cardRef.current.cloneNode(true) as HTMLElement;
+        clone.style.position = 'absolute';
+        clone.style.left = '-9999px';
+        clone.style.width = `${cardRef.current.offsetWidth}px`;
+        clone.style.height = `${cardRef.current.offsetHeight}px`;
+        document.body.appendChild(clone);
+        
+        // Get the name container in the clone
+        const nameContainer = clone.querySelector('[data-name-container="true"]') as HTMLElement;
+        if (nameContainer) {
         // Force consistent positioning for capturing
         nameContainer.style.position = 'absolute';
         nameContainer.style.width = '100%';
@@ -169,7 +172,7 @@ function App() {
         nameContainer.style.padding = '0 1rem';
         
         // Explicitly set positioning based on position type and device
-        if (namePosition.id === 'bottom') {
+          if (namePosition.id === 'bottom') {
           const isMobile = window.innerWidth <= 480;
           const isTallMobile = window.innerWidth >= 400 && window.innerWidth <= 415 && window.innerHeight >= 900;
           const isIPhone13Size = window.innerWidth >= 385 && window.innerWidth <= 395 && window.innerHeight >= 840 && window.innerHeight <= 850;
@@ -177,6 +180,7 @@ function App() {
           const isIPhoneXRSize = window.innerWidth >= 412 && window.innerWidth <= 416 && window.innerHeight >= 890 && window.innerHeight <= 900;
           const isIPhone12ProMaxSize = window.innerWidth >= 428 && window.innerWidth <= 432 && window.innerHeight >= 928 && window.innerHeight <= 936;
           const isGalaxyS8Size = window.innerWidth >= 358 && window.innerWidth <= 362 && window.innerHeight >= 735 && window.innerHeight <= 745;
+          const isIPhone11Size = window.innerWidth >= 375 && window.innerWidth <= 414 && window.innerHeight >= 800 && window.innerHeight < 890;
           
           if (isIPadSize) {
             nameContainer.style.bottom = '300px'; // Higher for iPad sized devices
@@ -188,6 +192,8 @@ function App() {
             nameContainer.style.bottom = '102px'; // Lower for iPhone 13/14 sized devices
           } else if (isGalaxyS8Size) {
             nameContainer.style.bottom = '90px'; // Lower for Galaxy S8/S9/S10e sized devices
+          } else if (isIPhone11Size) {
+            nameContainer.style.bottom = '110px'; // Lowered value for iPhone 11 to move name down
           } else if (isTallMobile) {
             nameContainer.style.bottom = '110px'; // Lower for tall phones
           } else if (isMobile) {
@@ -196,45 +202,45 @@ function App() {
             nameContainer.style.bottom = '125px';
           }
           
-          nameContainer.style.left = '50%';
-          nameContainer.style.transform = 'translateX(-50%)';
-        } else if (namePosition.id === 'top') {
+            nameContainer.style.left = '50%';
+            nameContainer.style.transform = 'translateX(-50%)';
+          } else if (namePosition.id === 'top') {
           nameContainer.style.top = '50px';
-          nameContainer.style.left = '50%';
-          nameContainer.style.transform = 'translateX(-50%)';
-        } else if (namePosition.id === 'center') {
+            nameContainer.style.left = '50%';
+            nameContainer.style.transform = 'translateX(-50%)';
+          } else if (namePosition.id === 'center') {
           nameContainer.style.top = 'calc(50% - 30px)';
-          nameContainer.style.left = '50%';
-          nameContainer.style.transform = 'translate(-50%, -50%)';
-        } else if (namePosition.id === 'left') {
+            nameContainer.style.left = '50%';
+            nameContainer.style.transform = 'translate(-50%, -50%)';
+          } else if (namePosition.id === 'left') {
           nameContainer.style.top = 'calc(50% - 30px)';
           nameContainer.style.left = '20px';
-          nameContainer.style.transform = 'translateY(-50%)';
-        } else if (namePosition.id === 'right') {
+            nameContainer.style.transform = 'translateY(-50%)';
+          } else if (namePosition.id === 'right') {
           nameContainer.style.top = 'calc(50% - 30px)';
           nameContainer.style.right = '20px';
-          nameContainer.style.transform = 'translateY(-50%)';
+            nameContainer.style.transform = 'translateY(-50%)';
         }
       }
       
       // Increased delay to ensure all styling is applied before capturing
       await new Promise(resolve => setTimeout(resolve, 300));
-      
-      // Capture the clone with html2canvas
-      const canvas = await html2canvas(clone, {
+        
+        // Capture the clone with html2canvas
+        const canvas = await html2canvas(clone, {
         scale: 3, // Higher resolution for better quality
-        logging: false,
+          logging: false,
         useCORS: true,
-        backgroundColor: null, // Transparent background
-        allowTaint: true
-      });
-      
-      // Remove the clone after capturing
-      document.body.removeChild(clone);
-      
+          backgroundColor: null, // Transparent background
+          allowTaint: true
+        });
+        
+        // Remove the clone after capturing
+        document.body.removeChild(clone);
+        
       // Convert to blob and process with callback
       canvas.toBlob(async (blob: Blob | null) => {
-        if (blob) {
+          if (blob) {
           await callback(blob);
         }
         // Clean up
@@ -256,53 +262,53 @@ function App() {
     document.body.appendChild(loadingMessage);
     
     await prepareCardImage((blob) => {
-      // Create a download link
-      const link = document.createElement('a');
-      link.download = `eid-card-${name}.png`;
-      link.href = URL.createObjectURL(blob);
-      link.click();
-      
-      // Clean up
-      URL.revokeObjectURL(link.href);
+            // Create a download link
+            const link = document.createElement('a');
+            link.download = `eid-card-${name}.png`;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+            
+            // Clean up
+            URL.revokeObjectURL(link.href);
     }, loadingMessage);
   };
 
   // Handle card sharing
   const handleShare = async () => {
-    // Show a loading message
-    const loadingMessage = document.createElement('div');
-    loadingMessage.innerText = 'جاري تحضير البطاقة للمشاركة...';
-    loadingMessage.className = 'fixed top-0 left-0 w-full bg-google-yellow text-gray-900 text-center py-2 z-50';
-    document.body.appendChild(loadingMessage);
-    
+        // Show a loading message
+        const loadingMessage = document.createElement('div');
+        loadingMessage.innerText = 'جاري تحضير البطاقة للمشاركة...';
+        loadingMessage.className = 'fixed top-0 left-0 w-full bg-google-yellow text-gray-900 text-center py-2 z-50';
+        document.body.appendChild(loadingMessage);
+        
     await prepareCardImage(async (blob) => {
-      // Check if the Web Share API is available
-      if (navigator.share && navigator.canShare) {
-        try {
-          const file = new File([blob], `eid-card-${name}.png`, { type: 'image/png' });
-          
-          // Check if we can share the file
-          if (navigator.canShare({ files: [file] })) {
-            await navigator.share({
-              title: 'بطاقة معايدة عيد الفطر',
-              text: `بطاقة معايدة من ${name} بمناسبة عيد الفطر المبارك`,
-              files: [file]
-            });
-          } else {
-            // Fallback if file sharing is not supported
-            await navigator.share({
-              title: 'بطاقة معايدة عيد الفطر',
-              text: `بطاقة معايدة من ${name} بمناسبة عيد الفطر المبارك`
-            });
-          }
-        } catch (error) {
-          console.error('Error sharing:', error);
-          alert('حدث خطأ أثناء المشاركة. يمكنك تنزيل البطاقة ومشاركتها يدويًا.');
-        }
-      } else {
-        // Fallback for browsers that don't support Web Share API
-        alert('المشاركة غير متاحة في هذا المتصفح. يمكنك تنزيل البطاقة ومشاركتها يدويًا.');
-      }
+            // Check if the Web Share API is available
+            if (navigator.share && navigator.canShare) {
+              try {
+                const file = new File([blob], `eid-card-${name}.png`, { type: 'image/png' });
+                
+                // Check if we can share the file
+                if (navigator.canShare({ files: [file] })) {
+                  await navigator.share({
+                    title: 'بطاقة معايدة عيد الفطر',
+                    text: `بطاقة معايدة من ${name} بمناسبة عيد الفطر المبارك`,
+                    files: [file]
+                  });
+                } else {
+                  // Fallback if file sharing is not supported
+                  await navigator.share({
+                    title: 'بطاقة معايدة عيد الفطر',
+                    text: `بطاقة معايدة من ${name} بمناسبة عيد الفطر المبارك`
+                  });
+                }
+              } catch (error) {
+                console.error('Error sharing:', error);
+                alert('حدث خطأ أثناء المشاركة. يمكنك تنزيل البطاقة ومشاركتها يدويًا.');
+              }
+            } else {
+              // Fallback for browsers that don't support Web Share API
+              alert('المشاركة غير متاحة في هذا المتصفح. يمكنك تنزيل البطاقة ومشاركتها يدويًا.');
+            }
     }, loadingMessage);
   };
 
