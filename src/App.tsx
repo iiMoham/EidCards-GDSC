@@ -18,14 +18,14 @@ const positionOptions = [
   { id: 'right', label: 'يمين', className: 'top-1/2 right-8 transform -translate-y-1/2' },
 ];
 
-// Define color options
+// Define color options with exact RGB values
 const colorOptions = [
-  { id: 'white', label: 'أبيض', className: 'text-white' },
-  { id: 'blue', label: 'أزرق', className: 'text-google-blue' },
-  { id: 'red', label: 'أحمر', className: 'text-google-red' },
-  { id: 'yellow', label: 'أصفر', className: 'text-google-yellow' },
-  { id: 'green', label: 'أخضر', className: 'text-google-green' },
-  { id: 'black', label: 'أسود', className: 'text-gray-900' },
+  { id: 'white', label: 'أبيض', className: 'text-white', value: '#FFFFFF' },
+  { id: 'blue', label: 'أزرق', className: 'text-google-blue', value: '#4385F3' },
+  { id: 'red', label: 'أحمر', className: 'text-google-red', value: '#E94335' },
+  { id: 'yellow', label: 'أصفر', className: 'text-google-yellow', value: '#F9BC04' },
+  { id: 'green', label: 'أخضر', className: 'text-google-green', value: '#129D57' },
+  { id: 'black', label: 'أسود', className: 'text-gray-900', value: '#202124' },
 ];
 
 // Define font options
@@ -40,7 +40,7 @@ const fontOptions = [
   { id: 'lateef', label: 'Lateef', className: 'font-lateef' },
 ];
 
-// Define font size options - simplified to 3 options
+// Define font size options
 const fontSizeOptions = [
   { id: 1, value: 'text-sm', label: 'صغير' },
   { id: 3, value: 'text-lg', label: 'متوسط' },
@@ -85,9 +85,6 @@ function App() {
   const [nameFont, setNameFont] = useState(fontOptions[0]);
   const [fontSizeIndex, setFontSizeIndex] = useState(1); // Medium size is default (index 1)
   
-  // Fixed position 
-  const fixedOffsetY = -80; // Adjusted to -80px as requested
-  const isiOSDevice = /iPhone|iPod/.test(navigator.userAgent);
   const cardRef = useRef<HTMLDivElement>(null);
   const nameContainerRef = useRef<HTMLDivElement>(null);
 
@@ -110,6 +107,7 @@ function App() {
       nameContainerRef.current.style.width = '100%';
       nameContainerRef.current.style.textAlign = 'center';
       nameContainerRef.current.style.padding = '0 1rem';
+      nameContainerRef.current.style.display = 'block'; // Make sure it's visible
       
       // Reset any previous position properties
       nameContainerRef.current.style.top = '';
@@ -118,10 +116,8 @@ function App() {
       nameContainerRef.current.style.left = '';
       nameContainerRef.current.style.transform = '';
       
-      // Instead of device-specific positioning, use relative percentages
-      // This will adapt better to different screen sizes
+      // Set position based on selected position
       if (namePosition.id === 'bottom') {
-        // Position at 70% from the top (moved up significantly from 80%)
         nameContainerRef.current.style.top = '65%';
         nameContainerRef.current.style.left = '50%';
         nameContainerRef.current.style.transform = 'translate(-50%, -50%)';
@@ -135,7 +131,7 @@ function App() {
         nameContainerRef.current.style.transform = 'translate(-50%, -50%)';
       } else if (namePosition.id === 'left') {
         nameContainerRef.current.style.top = '50%';
-        nameContainerRef.current.style.left = '10%';
+        nameContainerRef.current.style.left = '15%';
         nameContainerRef.current.style.transform = 'translate(0, -50%)';
       } else if (namePosition.id === 'right') {
         nameContainerRef.current.style.top = '50%';
@@ -151,72 +147,22 @@ function App() {
     return () => {
       window.removeEventListener('resize', adjustMobilePosition);
     };
-  }, [namePosition.id, nameColor.id, nameFont.id, fontSizeIndex, name]);
+  }, [namePosition.id]);
 
   // Handle name submission and card generation
   const handleNameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim()) {
+      // Ensure red color is explicitly set as default
+      setNameColor(colorOptions[2]); // Red color (index 2)
+      
       const randomIndex = Math.floor(Math.random() * cardDesigns.length);
       setSelectedCard(cardDesigns[randomIndex]);
+      
       setShowCard(true);
       // Show fireworks again when card is generated
       setShowFireworks(true);
       setTimeout(() => setShowFireworks(false), 10000);
-    }
-  };
-
-  // Helper function for card image processing
-  const prepareCardImage = async (callback: (blob: Blob) => Promise<void> | void, loadingMessage: HTMLDivElement) => {
-    if (!cardRef.current) return;
-    
-    try {
-      // Small delay to ensure all styles are fully applied and rendered
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Create a temporary clone to adjust position before capture
-      const tempDiv = document.createElement('div');
-      tempDiv.style.position = 'absolute';
-      tempDiv.style.left = '-9999px';
-      tempDiv.style.width = `${cardRef.current.offsetWidth}px`;
-      tempDiv.style.height = `${cardRef.current.offsetHeight}px`;
-      tempDiv.innerHTML = cardRef.current.outerHTML;
-      document.body.appendChild(tempDiv);
-      
-      // Get the name container in the clone and ensure consistent positioning
-      const nameContainer = tempDiv.querySelector('[data-name-container="true"]') as HTMLElement;
-      if (nameContainer && nameContainerRef.current) {
-        // Copy all styles from the original to maintain consistency
-        nameContainer.style.cssText = nameContainerRef.current.style.cssText;
-        
-        // No need for additional adjustments since we're using percentage-based positioning
-        // which will maintain the same relative position regardless of device
-      }
-      
-      // Capture the adjusted clone
-      const canvas = await html2canvas(tempDiv.firstChild as HTMLElement, {
-        scale: 3, // Higher resolution for better quality
-        logging: false,
-        useCORS: true,
-        backgroundColor: null, // Transparent background
-        allowTaint: true
-      });
-      
-      // Remove the temp element
-      document.body.removeChild(tempDiv);
-      
-      // Convert to blob and process with callback
-      canvas.toBlob(async (blob: Blob | null) => {
-        if (blob) {
-          await callback(blob);
-        }
-        // Clean up
-        document.body.removeChild(loadingMessage);
-      }, 'image/png');
-    } catch (error) {
-      console.error('Error processing card:', error);
-      document.body.removeChild(loadingMessage);
-      alert('حدث خطأ أثناء تحضير البطاقة. الرجاء المحاولة مرة أخرى.');
     }
   };
 
@@ -228,55 +174,225 @@ function App() {
     loadingMessage.className = 'fixed top-0 left-0 w-full bg-google-blue text-white text-center py-2 z-50';
     document.body.appendChild(loadingMessage);
     
-    await prepareCardImage((blob) => {
-            // Create a download link
-            const link = document.createElement('a');
-            link.download = `eid-card-${name}.png`;
-            link.href = URL.createObjectURL(blob);
-            link.click();
-            
-            // Clean up
-            URL.revokeObjectURL(link.href);
-    }, loadingMessage);
+    try {
+      if (!selectedCard) {
+        throw new Error('No card selected');
+      }
+      
+      // Create a new canvas
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Set canvas size (consistent size for all devices)
+      canvas.width = 1200;  
+      canvas.height = 1200;
+      
+      if (!ctx) {
+        throw new Error('Could not get canvas context');
+      }
+      
+      // Load the background image
+      const bgImage = new Image();
+      bgImage.crossOrigin = 'anonymous';
+      
+      // Create a promise to handle image loading
+      const imageLoadPromise = new Promise((resolve, reject) => {
+        bgImage.onload = () => resolve(bgImage);
+        bgImage.onerror = () => reject(new Error('Failed to load background image'));
+        bgImage.src = selectedCard.backgroundUrl;
+      });
+      
+      // Wait for image to load
+      await imageLoadPromise;
+      
+      // Draw background
+      ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+      
+      // Get the computed style for the name
+      const nameStyle = window.getComputedStyle(nameContainerRef.current?.querySelector('[data-name-element="true"]') || document.createElement('div'));
+      
+      // Set text style
+      ctx.font = `${nameStyle.fontWeight} ${parseInt(nameStyle.fontSize, 10) * 3}px ${nameStyle.fontFamily}`;
+      ctx.fillStyle = nameColor.value;
+      ctx.textAlign = 'center';
+      ctx.shadowColor = 'rgba(0,0,0,0.3)';
+      ctx.shadowBlur = 3;
+      ctx.shadowOffsetX = 1;
+      ctx.shadowOffsetY = 1;
+      
+      // Position the text based on namePosition
+      let textY = 0;
+      if (namePosition.id === 'top') {
+        textY = canvas.height * 0.15;
+      } else if (namePosition.id === 'center') {
+        textY = canvas.height * 0.5;
+      } else if (namePosition.id === 'bottom') {
+        textY = canvas.height * 0.67;
+      } else if (namePosition.id === 'left' || namePosition.id === 'right') {
+        textY = canvas.height * 0.5;
+      }
+      
+      // Draw the name
+      ctx.fillText(name, canvas.width / 2, textY);
+      
+      // Add downloaded version marker
+      ctx.font = '30px Arial';
+      ctx.fillStyle = 'white';
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 4;
+      
+      // Create a background for the marker
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      const markerText = 'Downloaded Version';
+      const markerWidth = ctx.measureText(markerText).width + 40;
+      ctx.fillRect(canvas.width / 2 - markerWidth / 2, canvas.height - 80, markerWidth, 40);
+      ctx.fillStyle = 'white';
+      ctx.fillText(markerText, canvas.width / 2, canvas.height - 50);
+      
+      // Convert canvas to blob
+      canvas.toBlob((blob) => {
+        if (blob) {
+          // Create download link
+          const link = document.createElement('a');
+          link.download = `eid-card-${name}.png`;
+          link.href = URL.createObjectURL(blob);
+          link.click();
+          
+          // Clean up
+          URL.revokeObjectURL(link.href);
+        }
+        // Remove loading message
+        document.body.removeChild(loadingMessage);
+      }, 'image/png', 1.0);
+    } catch (error) {
+      console.error('Error generating card:', error);
+      document.body.removeChild(loadingMessage);
+      alert('حدث خطأ أثناء تحضير البطاقة. الرجاء المحاولة مرة أخرى.');
+    }
   };
 
   // Handle card sharing
   const handleShare = async () => {
-        // Show a loading message
-        const loadingMessage = document.createElement('div');
-        loadingMessage.innerText = 'جاري تحضير البطاقة للمشاركة...';
-        loadingMessage.className = 'fixed top-0 left-0 w-full bg-google-yellow text-gray-900 text-center py-2 z-50';
-        document.body.appendChild(loadingMessage);
-        
-    await prepareCardImage(async (blob) => {
-            // Check if the Web Share API is available
-            if (navigator.share && navigator.canShare) {
-              try {
-                const file = new File([blob], `eid-card-${name}.png`, { type: 'image/png' });
-                
-                // Check if we can share the file
-                if (navigator.canShare({ files: [file] })) {
-                  await navigator.share({
-                    title: 'بطاقة معايدة عيد الفطر',
-                    text: `بطاقة معايدة من ${name} بمناسبة عيد الفطر المبارك`,
-                    files: [file]
-                  });
-                } else {
-                  // Fallback if file sharing is not supported
-                  await navigator.share({
-                    title: 'بطاقة معايدة عيد الفطر',
-                    text: `بطاقة معايدة من ${name} بمناسبة عيد الفطر المبارك`
-                  });
-                }
-              } catch (error) {
-                console.error('Error sharing:', error);
-                alert('حدث خطأ أثناء المشاركة. يمكنك تنزيل البطاقة ومشاركتها يدويًا.');
+    // Show a loading message
+    const loadingMessage = document.createElement('div');
+    loadingMessage.innerText = 'جاري تحضير البطاقة للمشاركة...';
+    loadingMessage.className = 'fixed top-0 left-0 w-full bg-google-yellow text-gray-900 text-center py-2 z-50';
+    document.body.appendChild(loadingMessage);
+    
+    try {
+      if (!selectedCard) {
+        throw new Error('No card selected');
+      }
+      
+      // Create a new canvas
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Set canvas size (consistent size for all devices)
+      canvas.width = 1200;  
+      canvas.height = 1200;
+      
+      if (!ctx) {
+        throw new Error('Could not get canvas context');
+      }
+      
+      // Load the background image
+      const bgImage = new Image();
+      bgImage.crossOrigin = 'anonymous';
+      
+      // Create a promise to handle image loading
+      const imageLoadPromise = new Promise((resolve, reject) => {
+        bgImage.onload = () => resolve(bgImage);
+        bgImage.onerror = () => reject(new Error('Failed to load background image'));
+        bgImage.src = selectedCard.backgroundUrl;
+      });
+      
+      // Wait for image to load
+      await imageLoadPromise;
+      
+      // Draw background
+      ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+      
+      // Get the computed style for the name
+      const nameStyle = window.getComputedStyle(nameContainerRef.current?.querySelector('[data-name-element="true"]') || document.createElement('div'));
+      
+      // Set text style
+      ctx.font = `${nameStyle.fontWeight} ${parseInt(nameStyle.fontSize, 10) * 3}px ${nameStyle.fontFamily}`;
+      ctx.fillStyle = nameColor.value;
+      ctx.textAlign = 'center';
+      ctx.shadowColor = 'rgba(0,0,0,0.3)';
+      ctx.shadowBlur = 3;
+      ctx.shadowOffsetX = 1;
+      ctx.shadowOffsetY = 1;
+      
+      // Position the text based on namePosition
+      let textY = 0;
+      if (namePosition.id === 'top') {
+        textY = canvas.height * 0.15;
+      } else if (namePosition.id === 'center') {
+        textY = canvas.height * 0.5;
+      } else if (namePosition.id === 'bottom') {
+        textY = canvas.height * 0.65;
+      } else if (namePosition.id === 'left' || namePosition.id === 'right') {
+        textY = canvas.height * 0.5;
+      }
+      
+      // Draw the name
+      ctx.fillText(name, canvas.width / 2, textY);
+      
+      // Add shared version marker
+      ctx.font = '30px Arial';
+      ctx.fillStyle = 'white';
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 4;
+      
+      // Create a background for the marker
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      const markerText = 'Shared Version';
+      const markerWidth = ctx.measureText(markerText).width + 40;
+      ctx.fillRect(canvas.width / 2 - markerWidth / 2, canvas.height - 80, markerWidth, 40);
+      ctx.fillStyle = 'white';
+      ctx.fillText(markerText, canvas.width / 2, canvas.height - 50);
+      
+      // Convert canvas to blob
+      canvas.toBlob(async (blob) => {
+        if (blob) {
+          // Check if the Web Share API is available
+          if (navigator.share && navigator.canShare) {
+            try {
+              const file = new File([blob], `eid-card-${name}.png`, { type: 'image/png' });
+              
+              // Check if we can share the file
+              if (navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                  title: 'بطاقة معايدة عيد الفطر',
+                  text: `بطاقة معايدة من ${name} بمناسبة عيد الفطر المبارك`,
+                  files: [file]
+                });
+              } else {
+                // Fallback if file sharing is not supported
+                await navigator.share({
+                  title: 'بطاقة معايدة عيد الفطر',
+                  text: `بطاقة معايدة من ${name} بمناسبة عيد الفطر المبارك`
+                });
               }
-            } else {
-              // Fallback for browsers that don't support Web Share API
-              alert('المشاركة غير متاحة في هذا المتصفح. يمكنك تنزيل البطاقة ومشاركتها يدويًا.');
+            } catch (error) {
+              console.error('Error sharing:', error);
+              alert('حدث خطأ أثناء المشاركة. يمكنك تنزيل البطاقة ومشاركتها يدويًا.');
             }
-    }, loadingMessage);
+          } else {
+            // Fallback for browsers that don't support Web Share API
+            alert('المشاركة غير متاحة في هذا المتصفح. يمكنك تنزيل البطاقة ومشاركتها يدويًا.');
+          }
+        }
+        // Remove loading message
+        document.body.removeChild(loadingMessage);
+      }, 'image/png', 1.0);
+    } catch (error) {
+      console.error('Error generating card:', error);
+      document.body.removeChild(loadingMessage);
+      alert('حدث خطأ أثناء تحضير البطاقة. الرجاء المحاولة مرة أخرى.');
+    }
   };
 
   // Reset form to create a new card
@@ -295,6 +411,106 @@ function App() {
     }
   };
 
+  // Helper function for card image processing that we'll use for sharing and downloads
+  const prepareCardImage = async (callback: (blob: Blob) => Promise<void> | void, loadingMessage: HTMLDivElement) => {
+    if (!cardRef.current) return;
+    
+    try {
+      // Get the actual dimensions of the card element
+      const cardRect = cardRef.current.getBoundingClientRect();
+      
+      // Capture the card with html2canvas with exact dimensions
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 2, // Lower scale for better consistency
+        width: cardRect.width,
+        height: cardRect.height,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: null,
+        logging: false, // Disable logging
+        imageTimeout: 0, // No timeout for images
+        onclone: (clonedDoc) => {
+          // Get the name container in the cloned document
+          const nameContainer = clonedDoc.querySelector('[data-name-container="true"]') as HTMLElement;
+          if (nameContainer) {
+            const posType = nameContainer.getAttribute('data-position-type');
+            
+            // First, explicitly copy all computed styles from original
+            if (nameContainerRef.current) {
+              const originalStyles = window.getComputedStyle(nameContainerRef.current);
+              
+              // Apply all computed styles
+              for (let i = 0; i < originalStyles.length; i++) {
+                const property = originalStyles[i];
+                nameContainer.style.setProperty(
+                  property,
+                  originalStyles.getPropertyValue(property),
+                  originalStyles.getPropertyPriority(property)
+                );
+              }
+              
+              // Force critical styles
+              nameContainer.style.position = 'absolute';
+              nameContainer.style.width = '100%';
+              nameContainer.style.textAlign = 'center';
+              nameContainer.style.display = 'block';
+              nameContainer.style.zIndex = '10';
+              
+              // Get the name element
+              const nameElement = nameContainer.querySelector('[data-name-element="true"]');
+              if (nameElement) {
+                // Ensure text properties are retained
+                const originalNameElement = cardRef.current?.querySelector('[data-name-element="true"]');
+                if (originalNameElement) {
+                  const originalNameStyles = window.getComputedStyle(originalNameElement as HTMLElement);
+                  for (let i = 0; i < originalNameStyles.length; i++) {
+                    const property = originalNameStyles[i];
+                    (nameElement as HTMLElement).style.setProperty(
+                      property,
+                      originalNameStyles.getPropertyValue(property),
+                      originalNameStyles.getPropertyPriority(property)
+                    );
+                  }
+                }
+              }
+            }
+            
+            // Add the downloaded version marker
+            const marker = clonedDoc.createElement('div');
+            marker.style.position = 'absolute';
+            marker.style.bottom = '20px';
+            marker.style.left = '50%';
+            marker.style.transform = 'translateX(-50%)';
+            marker.style.padding = '4px 8px';
+            marker.style.backgroundColor = 'rgba(0,0,0,0.5)';
+            marker.style.color = 'white';
+            marker.style.borderRadius = '4px';
+            marker.style.fontSize = '12px';
+            marker.textContent = 'Downloaded Version';
+            
+            const card = nameContainer.closest('[ref="cardRef"]') || nameContainer.parentElement;
+            if (card) {
+              card.appendChild(marker);
+            }
+          }
+        }
+      });
+      
+      // Convert to blob and process with callback
+      canvas.toBlob(async (blob: Blob | null) => {
+        if (blob) {
+          await callback(blob);
+        }
+        // Clean up
+        document.body.removeChild(loadingMessage);
+      }, 'image/png', 1.0); // Use highest quality
+    } catch (error) {
+      console.error('Error processing card:', error);
+      document.body.removeChild(loadingMessage);
+      alert('حدث خطأ أثناء تحضير البطاقة. الرجاء المحاولة مرة أخرى.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-pattern" dir="rtl">
       {/* Fireworks effect */}
@@ -306,8 +522,6 @@ function App() {
           <div className="after" style={{left: '70%', animationDelay: '1.7s'}}></div>
           <div className="before" style={{left: '80%', animationDelay: '0.8s'}}></div>
           <div className="after" style={{left: '40%', animationDelay: '1.3s'}}></div>
-          <div className="before" style={{left: '90%', animationDelay: '2.2s'}}></div>
-          <div className="after" style={{left: '10%', animationDelay: '3.5s'}}></div>
         </div>
       )}
       
@@ -384,11 +598,30 @@ function App() {
                         position: 'absolute', 
                         width: '100%', 
                         textAlign: 'center',
-                        padding: '0 1rem'
+                        padding: '0 1rem',
+                        top: namePosition.id === 'bottom' ? '65%' : 
+                             namePosition.id === 'top' ? '15%' : 
+                             namePosition.id === 'center' ? '50%' : '50%',
+                        left: (namePosition.id === 'bottom' || 
+                               namePosition.id === 'top' || 
+                               namePosition.id === 'center' || 
+                               namePosition.id === 'left') ? '50%' : 'auto',
+                        right: namePosition.id === 'right' ? '10%' : 'auto',
+                        transform: (namePosition.id === 'bottom' || 
+                                   namePosition.id === 'top' || 
+                                   namePosition.id === 'center') ? 'translate(-50%, -50%)' : 
+                                   (namePosition.id === 'left' || namePosition.id === 'right') ? 'translateY(-50%)' : 'none',
+                        zIndex: 10,
+                        display: 'block'  // Force display
                       }}
                       data-name-container="true"
                       data-position-type={namePosition.id}>
-                      <h3 className={`font-bold ${nameColor.className} ${nameFont.className} ${fontSizeOptions[fontSizeIndex].value}`} data-name-element="true">
+                      <h3 
+                        className={`font-bold ${nameFont.className} ${fontSizeOptions[fontSizeIndex].value}`} 
+                        style={{
+                          color: nameColor.value,
+                        }}
+                        data-name-element="true">
                         {name}
                       </h3>
                     </div>
@@ -397,7 +630,6 @@ function App() {
                   {/* Customization tools */}
                   <div className="flex flex-col justify-center space-y-6">
                     <div>
-                      {/* <h2 className="text-2xl font-extrabold text-gray-900">بطاقة المطور الخاصة بك</h2> */}
                       <p className="mt-2 font-medium text-gray-600">تم إنشاء بطاقتك بنجاح. تقدر الآن تنزيلها وتشاركها .</p>
                     </div>
                     
