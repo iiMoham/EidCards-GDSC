@@ -105,25 +105,42 @@ function App() {
     const adjustMobilePosition = () => {
       if (!nameContainerRef.current) return;
       
-      const isMobile = window.innerWidth <= 480;
-      const isTallMobile = window.innerWidth >= 400 && window.innerWidth <= 415 && window.innerHeight >= 900;
-      const isIPhone13Size = window.innerWidth >= 385 && window.innerWidth <= 395 && window.innerHeight >= 840 && window.innerHeight <= 850;
-      const isIPhone11Size = window.innerWidth >= 375 && window.innerWidth <= 414 && window.innerHeight >= 800 && window.innerHeight < 890;
+      // Basic positioning properties that should always be set
+      nameContainerRef.current.style.position = 'absolute';
+      nameContainerRef.current.style.width = '100%';
+      nameContainerRef.current.style.textAlign = 'center';
+      nameContainerRef.current.style.padding = '0 1rem';
       
-      if (isMobile && namePosition.id === 'bottom') {
-        // Force position for mobile
-        if (isIPhone13Size) {
-          nameContainerRef.current.style.bottom = '102px'; // Lower for iPhone 13/14 sized devices
-        } else if (isIPhone11Size) {
-          nameContainerRef.current.style.bottom = '110px'; // Lowered value for iPhone 11 to move name down
-        } else if (isTallMobile) {
-          nameContainerRef.current.style.bottom = '110px'; // Lower for tall phones
-        } else {
-          nameContainerRef.current.style.bottom = '130px';
-        }
-      } else {
-        // Reset to use CSS class
-        nameContainerRef.current.style.bottom = '';
+      // Reset any previous position properties
+      nameContainerRef.current.style.top = '';
+      nameContainerRef.current.style.right = '';
+      nameContainerRef.current.style.bottom = '';
+      nameContainerRef.current.style.left = '';
+      nameContainerRef.current.style.transform = '';
+      
+      // Instead of device-specific positioning, use relative percentages
+      // This will adapt better to different screen sizes
+      if (namePosition.id === 'bottom') {
+        // Position at 70% from the top (moved up significantly from 80%)
+        nameContainerRef.current.style.top = '65%';
+        nameContainerRef.current.style.left = '50%';
+        nameContainerRef.current.style.transform = 'translate(-50%, -50%)';
+      } else if (namePosition.id === 'top') {
+        nameContainerRef.current.style.top = '15%';
+        nameContainerRef.current.style.left = '50%';
+        nameContainerRef.current.style.transform = 'translate(-50%, -50%)';
+      } else if (namePosition.id === 'center') {
+        nameContainerRef.current.style.top = '50%';
+        nameContainerRef.current.style.left = '50%';
+        nameContainerRef.current.style.transform = 'translate(-50%, -50%)';
+      } else if (namePosition.id === 'left') {
+        nameContainerRef.current.style.top = '50%';
+        nameContainerRef.current.style.left = '10%';
+        nameContainerRef.current.style.transform = 'translate(0, -50%)';
+      } else if (namePosition.id === 'right') {
+        nameContainerRef.current.style.top = '50%';
+        nameContainerRef.current.style.right = '10%';
+        nameContainerRef.current.style.transform = 'translate(0, -50%)';
       }
     };
     
@@ -134,7 +151,7 @@ function App() {
     return () => {
       window.removeEventListener('resize', adjustMobilePosition);
     };
-  }, [namePosition.id]);
+  }, [namePosition.id, nameColor.id, nameFont.id, fontSizeIndex, name]);
 
   // Handle name submission and card generation
   const handleNameSubmit = (e: React.FormEvent) => {
@@ -154,93 +171,43 @@ function App() {
     if (!cardRef.current) return;
     
     try {
-        // Create a temporary clone of the card for capturing
-        const clone = cardRef.current.cloneNode(true) as HTMLElement;
-        clone.style.position = 'absolute';
-        clone.style.left = '-9999px';
-        clone.style.width = `${cardRef.current.offsetWidth}px`;
-        clone.style.height = `${cardRef.current.offsetHeight}px`;
-        document.body.appendChild(clone);
+      // Small delay to ensure all styles are fully applied and rendered
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Create a temporary clone to adjust position before capture
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      tempDiv.style.width = `${cardRef.current.offsetWidth}px`;
+      tempDiv.style.height = `${cardRef.current.offsetHeight}px`;
+      tempDiv.innerHTML = cardRef.current.outerHTML;
+      document.body.appendChild(tempDiv);
+      
+      // Get the name container in the clone and ensure consistent positioning
+      const nameContainer = tempDiv.querySelector('[data-name-container="true"]') as HTMLElement;
+      if (nameContainer && nameContainerRef.current) {
+        // Copy all styles from the original to maintain consistency
+        nameContainer.style.cssText = nameContainerRef.current.style.cssText;
         
-        // Get the name container in the clone
-        const nameContainer = clone.querySelector('[data-name-container="true"]') as HTMLElement;
-        if (nameContainer) {
-        // Force consistent positioning for capturing
-        nameContainer.style.position = 'absolute';
-        nameContainer.style.width = '100%';
-        nameContainer.style.textAlign = 'center';
-        nameContainer.style.padding = '0 1rem';
-        
-        // Explicitly set positioning based on position type and device
-          if (namePosition.id === 'bottom') {
-          const isMobile = window.innerWidth <= 480;
-          const isTallMobile = window.innerWidth >= 400 && window.innerWidth <= 415 && window.innerHeight >= 900;
-          const isIPhone13Size = window.innerWidth >= 385 && window.innerWidth <= 395 && window.innerHeight >= 840 && window.innerHeight <= 850;
-          const isIPadSize = window.innerWidth >= 1020 && window.innerWidth <= 1028 && window.innerHeight >= 1360 && window.innerHeight <= 1372;
-          const isIPhoneXRSize = window.innerWidth >= 412 && window.innerWidth <= 416 && window.innerHeight >= 890 && window.innerHeight <= 900;
-          const isIPhone12ProMaxSize = window.innerWidth >= 428 && window.innerWidth <= 432 && window.innerHeight >= 928 && window.innerHeight <= 936;
-          const isGalaxyS8Size = window.innerWidth >= 358 && window.innerWidth <= 362 && window.innerHeight >= 735 && window.innerHeight <= 745;
-          const isIPhone11Size = window.innerWidth >= 375 && window.innerWidth <= 414 && window.innerHeight >= 800 && window.innerHeight < 890;
-          
-          if (isIPadSize) {
-            nameContainer.style.bottom = '300px'; // Higher for iPad sized devices
-          } else if (isIPhone12ProMaxSize) {
-            nameContainer.style.bottom = '110px'; // Adjusted value to move name slightly higher on iPhone 12/13 Pro Max
-          } else if (isIPhoneXRSize) {
-            nameContainer.style.bottom = '105px'; // Adjusted value to move name slightly higher on iPhone XR/11
-          } else if (isIPhone13Size) {
-            nameContainer.style.bottom = '102px'; // Lower for iPhone 13/14 sized devices
-          } else if (isGalaxyS8Size) {
-            nameContainer.style.bottom = '90px'; // Lower for Galaxy S8/S9/S10e sized devices
-          } else if (isIPhone11Size) {
-            nameContainer.style.bottom = '110px'; // Lowered value for iPhone 11 to move name down
-          } else if (isTallMobile) {
-            nameContainer.style.bottom = '110px'; // Lower for tall phones
-          } else if (isMobile) {
-            nameContainer.style.bottom = '130px';
-          } else {
-            nameContainer.style.bottom = '125px';
-          }
-          
-            nameContainer.style.left = '50%';
-            nameContainer.style.transform = 'translateX(-50%)';
-          } else if (namePosition.id === 'top') {
-          nameContainer.style.top = '50px';
-            nameContainer.style.left = '50%';
-            nameContainer.style.transform = 'translateX(-50%)';
-          } else if (namePosition.id === 'center') {
-          nameContainer.style.top = 'calc(50% - 30px)';
-            nameContainer.style.left = '50%';
-            nameContainer.style.transform = 'translate(-50%, -50%)';
-          } else if (namePosition.id === 'left') {
-          nameContainer.style.top = 'calc(50% - 30px)';
-          nameContainer.style.left = '20px';
-            nameContainer.style.transform = 'translateY(-50%)';
-          } else if (namePosition.id === 'right') {
-          nameContainer.style.top = 'calc(50% - 30px)';
-          nameContainer.style.right = '20px';
-            nameContainer.style.transform = 'translateY(-50%)';
-        }
+        // No need for additional adjustments since we're using percentage-based positioning
+        // which will maintain the same relative position regardless of device
       }
       
-      // Increased delay to ensure all styling is applied before capturing
-      await new Promise(resolve => setTimeout(resolve, 300));
-        
-        // Capture the clone with html2canvas
-        const canvas = await html2canvas(clone, {
+      // Capture the adjusted clone
+      const canvas = await html2canvas(tempDiv.firstChild as HTMLElement, {
         scale: 3, // Higher resolution for better quality
-          logging: false,
+        logging: false,
         useCORS: true,
-          backgroundColor: null, // Transparent background
-          allowTaint: true
-        });
-        
-        // Remove the clone after capturing
-        document.body.removeChild(clone);
-        
+        backgroundColor: null, // Transparent background
+        allowTaint: true
+      });
+      
+      // Remove the temp element
+      document.body.removeChild(tempDiv);
+      
       // Convert to blob and process with callback
       canvas.toBlob(async (blob: Blob | null) => {
-          if (blob) {
+        if (blob) {
           await callback(blob);
         }
         // Clean up
@@ -366,7 +333,7 @@ function App() {
               </p>
               <p className="text-lg font-medium text-gray-500 max-w-2xl mx-auto mb-2">
                 عشان تستلم عيديتك، أدخل اسمك تحت 👇 ولا تنسى تشاركها معنا في تويتر
-                <a href="https://x.com/GDOC_Team" target="_blank" rel="noopener noreferrer" className="text-google-blue"> @GDSC_Team</a>
+                <a href="https://x.com/GDOC_Team" target="_blank" rel="noopener noreferrer" className="text-google-blue"> @GDOC_Team</a>
               </p>
             </div>
 
@@ -412,8 +379,15 @@ function App() {
                     />
                     <div 
                       ref={nameContainerRef}
-                      className={`name-container name-position-${namePosition.id}`}
-                      data-name-container="true">
+                      className="name-container"
+                      style={{
+                        position: 'absolute', 
+                        width: '100%', 
+                        textAlign: 'center',
+                        padding: '0 1rem'
+                      }}
+                      data-name-container="true"
+                      data-position-type={namePosition.id}>
                       <h3 className={`font-bold ${nameColor.className} ${nameFont.className} ${fontSizeOptions[fontSizeIndex].value}`} data-name-element="true">
                         {name}
                       </h3>
