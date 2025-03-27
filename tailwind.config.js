@@ -8,10 +8,10 @@ export default {
       },
       colors: {
         google: {
-          green: '#129D57',
-          blue: '#4385F3',
-          yellow: '#F9BC04',
-          red: '#E94335',
+          green: '#38A555',
+          blue: '#4587F6',
+          yellow: '#FAAE0B',
+          red: '#E84336',
         },
       },
     },

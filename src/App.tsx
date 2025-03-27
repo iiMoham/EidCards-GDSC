@@ -527,16 +527,16 @@ function App() {
       
       {/* Initial input view */}
       {!showCard ? (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="flex flex-col items-center text-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-0">
+          <div className="flex flex-col items-center text-center mt-8">
             {/* Logo and greeting */}
-            <div className="mb-12">
+            <div className="mb-6">
               <img 
-                src="/assets/cards/gdsc-logo.png" 
+                src="/assets/cards/vertical-gdsc-logo.png" 
                 alt="شعار GDSC" 
-                className="h-30 w-60 mx-auto mb-6"
+                className="h-30 w-60 mx-auto mb-8"
               />
-              <h1 className="text-2xl font-semibold mb-4 flex justify-center gap-2 flex-wrap">
+              <h1 className="text-2xl font-semibold mb-6 flex justify-center gap-2 flex-wrap">
                 <span className="text-google-blue">كل</span>
                 <span className="text-google-red">عـــام</span>
                 <span className="text-google-yellow">وانتم</span>
@@ -620,6 +620,7 @@ function App() {
                         className={`font-bold ${nameFont.className} ${fontSizeOptions[fontSizeIndex].value}`} 
                         style={{
                           color: nameColor.value,
+                          textShadow: '1px 1px 2px rgba(0,0,0,0.3)' // Add shadow for better visibility
                         }}
                         data-name-element="true">
                         {name}
@@ -772,9 +773,9 @@ function App() {
                   className="hover:opacity-90 transition-opacity duration-300"
                 >
                   <img 
-                    src="/assets/cards/gdsc-logo.png" 
+                    src="/assets/cards/horizontal-gdsc-logo.png" 
                     alt="GDSC Logo" 
-                    className="h-16 w-auto"
+                    className="h-10 w-auto"
                   />
                 </a>
                 
@@ -818,9 +819,9 @@ function App() {
                     className="hover:opacity-90 transition-opacity duration-300"
                   >
                     <img 
-                      src="/assets/cards/gdsc-logo.png" 
+                      src="/assets/cards/horizontal-gdsc-logo.png" 
                       alt="GDSC Logo" 
-                      className="h-20 w-40"
+                      className="h-10 w-auto"
                     />
                   </a>
                 </div>
