@@ -235,20 +235,6 @@ function App() {
       // Draw the name
       ctx.fillText(name, canvas.width / 2, textY);
       
-      // Add downloaded version marker
-      ctx.font = '30px Arial';
-      ctx.fillStyle = 'white';
-      ctx.shadowColor = 'rgba(0,0,0,0.5)';
-      ctx.shadowBlur = 4;
-      
-      // Create a background for the marker
-      ctx.fillStyle = 'rgba(0,0,0,0.5)';
-      const markerText = 'Downloaded Version';
-      const markerWidth = ctx.measureText(markerText).width + 40;
-      ctx.fillRect(canvas.width / 2 - markerWidth / 2, canvas.height - 80, markerWidth, 40);
-      ctx.fillStyle = 'white';
-      ctx.fillText(markerText, canvas.width / 2, canvas.height - 50);
-      
       // Convert canvas to blob
       canvas.toBlob((blob) => {
         if (blob) {
@@ -340,20 +326,6 @@ function App() {
       // Draw the name
       ctx.fillText(name, canvas.width / 2, textY);
       
-      // Add shared version marker
-      ctx.font = '30px Arial';
-      ctx.fillStyle = 'white';
-      ctx.shadowColor = 'rgba(0,0,0,0.5)';
-      ctx.shadowBlur = 4;
-      
-      // Create a background for the marker
-      ctx.fillStyle = 'rgba(0,0,0,0.5)';
-      const markerText = 'Shared Version';
-      const markerWidth = ctx.measureText(markerText).width + 40;
-      ctx.fillRect(canvas.width / 2 - markerWidth / 2, canvas.height - 80, markerWidth, 40);
-      ctx.fillStyle = 'white';
-      ctx.fillText(markerText, canvas.width / 2, canvas.height - 50);
-      
       // Convert canvas to blob
       canvas.toBlob(async (blob) => {
         if (blob) {
@@ -433,8 +405,6 @@ function App() {
           // Get the name container in the cloned document
           const nameContainer = clonedDoc.querySelector('[data-name-container="true"]') as HTMLElement;
           if (nameContainer) {
-            const posType = nameContainer.getAttribute('data-position-type');
-            
             // First, explicitly copy all computed styles from original
             if (nameContainerRef.current) {
               const originalStyles = window.getComputedStyle(nameContainerRef.current);
@@ -473,24 +443,6 @@ function App() {
                   }
                 }
               }
-            }
-            
-            // Add the downloaded version marker
-            const marker = clonedDoc.createElement('div');
-            marker.style.position = 'absolute';
-            marker.style.bottom = '20px';
-            marker.style.left = '50%';
-            marker.style.transform = 'translateX(-50%)';
-            marker.style.padding = '4px 8px';
-            marker.style.backgroundColor = 'rgba(0,0,0,0.5)';
-            marker.style.color = 'white';
-            marker.style.borderRadius = '4px';
-            marker.style.fontSize = '12px';
-            marker.textContent = 'Downloaded Version';
-            
-            const card = nameContainer.closest('[ref="cardRef"]') || nameContainer.parentElement;
-            if (card) {
-              card.appendChild(marker);
             }
           }
         }
